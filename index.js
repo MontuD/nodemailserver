@@ -6,8 +6,13 @@ const { promisify } = require('util');
 const readFile = promisify(fs.readFile);
 const handlebars = require("handlebars");
 const bodyParser = require('body-parser');
+const cors = require("cors");
 
 const port = 80
+
+app.use(cors({
+  origin: 'https://montu.shop'
+}))
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
