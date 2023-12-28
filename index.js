@@ -8,7 +8,7 @@ const handlebars = require("handlebars");
 const bodyParser = require('body-parser');
 const cors = require("cors");
 
-const port = 80
+const port = 30080
 
 app.use(cors({
   origin: 'https://montu.shop'
@@ -49,8 +49,13 @@ app.listen(port, () => {
 });
 
 app.post("/query",(req,res)=>{
-    sendMail(req.body);
+    sendMail(req.body,'Query Submitted for : '+req.body.username,"new-mail");
     res.status(200);
+});
+
+app.post("/respond",(req,res)=>{
+  sendMail(req.body,'Response From Admin',"");
+  res.status(200);
 });
 
 app.get("/test",(req,res)=>{
@@ -59,10 +64,11 @@ app.get("/test",(req,res)=>{
 });
 
 
-async function sendMail(request){
-    console.log("Received = "+request);
+async function sendMail(request,subject,mailType){
+    console.log("Received = "+request.email);
     let transporter = nodemailer.createTransport(transport) ;
-    let messageHtml = await readFile('./new-email.html', 'utf8');
+    let mailFile = (mailType==="new-mail")?'./new-email.html':'./response-mail.html'
+    let messageHtml = await readFile(mailFile, 'utf8');
 
     let template = handlebars.compile(messageHtml);
     let messageHtmlToSend = template(request);
@@ -71,7 +77,7 @@ async function sendMail(request){
     let message = {
     from: '"Montu Sharma" <addmin@montu.shop>', // sender address
     to: request.username + " <"+ request.email+">", // list of receivers
-    subject: "Query Submitted", // Subject line
+    subject: subject, // Subject line
     html: messageHtmlToSend, // html body
     }
 
